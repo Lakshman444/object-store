@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:os="http://www.mulesoft.org/schema/mule/os" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd">
+	<os:object-store name="Os" doc:name="Object store" doc:id="62b2de80-51c0-4494-a814-5799bda61f84" entryTtl="6" entryTtlUnit="HOURS" />
+	<http:listener-config name="HTTP_Listener_config1" doc:name="HTTP Listener config" doc:id="b64e48dc-c118-4bab-a737-db28bd50a43c" >
+		<http:listener-connection host="0.0.0.0" port="8084" />
+	</http:listener-config>
+	<flow name="osFlow" doc:id="685fc626-283d-4930-912f-f46dd9833ae7" >
+		<http:listener doc:name="Listener" doc:id="276fbefb-f8c5-4051-a43f-2fbb52e5282a" config-ref="HTTP_Listener_config1" path="/os"/>
+		<os:store doc:name="Store" doc:id="61e39ca5-41c2-46e7-bf35-21635c257930" key="#[attributes.queryParams.id]" objectStore="Os">
+		</os:store>
+	</flow>
+	<flow name="osFlow1" doc:id="c2750808-0154-4935-b8c5-99adede38bdc" >
+		<http:listener doc:name="Listener" doc:id="d0e30683-6040-495f-bea2-babddace2521" config-ref="HTTP_Listener_config1" path="/retrieveall"/>
+		<os:retrieve-all doc:name="Retrieve all" doc:id="7b5909f9-7956-41de-8a09-d113790a80ad" objectStore="Os"/>
+	</flow>
+	<flow name="osFlow2" doc:id="00a489a8-a2dd-4f0e-b8e0-4ee5bbc156ac" >
+		<http:listener doc:name="Listener" doc:id="14f95515-eb02-4ee7-8b89-78573641e5a8" config-ref="HTTP_Listener_config1" path="/allkeys"/>
+		<os:retrieve-all-keys doc:name="Retrieve all keys" doc:id="be4fdef5-793d-4545-b902-f37a9c0fdb9f" objectStore="Os"/>
+		<foreach doc:name="For Each" doc:id="bc025ce6-218a-46a2-80a4-30be1e23bf16" >
+			<os:retrieve doc:name="Retrieve" doc:id="b7a35a4c-30b0-4b4f-a583-75e4228d8667" key="#[payload]" objectStore="Os">
+				<os:default-value ><![CDATA[There is no value for that key]]></os:default-value>
+			</os:retrieve>
+			<logger level="INFO" doc:name="Logger" doc:id="35a9b0b3-ea1e-4f08-81d9-58fc128302f7" message='#["these is the value for the keys" ++ payload as String]'/>
+		</foreach>
+	</flow>
+	<flow name="osFlow3" doc:id="897d469a-d962-4f44-b02b-a37da00c8633" >
+		<http:listener doc:name="Listener" doc:id="999793f4-48a6-4012-9eca-1f4748281842" config-ref="HTTP_Listener_config1" path="/tea"/>
+		<set-payload value="#[&quot;hii muley's&quot;]" doc:name="Set Payload" doc:id="7a2681d3-e24a-4e16-bc87-ec3840ee514c" />
+	</flow>
+</mule>
